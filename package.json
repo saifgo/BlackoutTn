@@ -1,0 +1,36 @@
+{
+  "name": "blackout-tn",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "BlackoutTN - Tunisia power outage crowdsourced map",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "deploy": "npm run build && firebase deploy",
+    "deploy:hosting": "npm run build && firebase deploy --only hosting",
+    "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.51.0",
+    "firebase": "^10.13.0",
+    "firebaseui": "^6.1.0",
+    "leaflet": "^1.9.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-leaflet": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.12",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.5"
+  }
+}

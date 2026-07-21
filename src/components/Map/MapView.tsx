@@ -1,0 +1,129 @@
+import { useEffect, useMemo, useState } from 'react';
+import { MapContainer, TileLayer, Popup } from 'react-leaflet';
+import type { LatLngBoundsExpression } from 'leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import type { User } from 'firebase/auth';
+import type {
+  Report,
+  ZoneAggregate,
+  ZoneFeatureCollection,
+  ZoneProperties,
+} from '../../types';
+import { ZoneLayer } from './ZoneLayer';
+import { ZonePopup } from './ZonePopup';
+import { featureBounds } from '../../lib/geo';
+
+const TUNISIA_BOUNDS: LatLngBoundsExpression = [
+  [30.2, 7.5],
+  [37.6, 11.6],
+];
+
+interface MapViewProps {
+  zones: ZoneFeatureCollection;
+  aggregates: Map<string, ZoneAggregate>;
+  user: User | null;
+  reports: Report[];
+  selectedZoneId: string | null;
+  onSelectZone: (zoneId: string | null) => void;
+}
+
+function PopupBridge({
+  zones,
+  aggregates,
+  selectedZoneId,
+  user,
+  reports,
+  onClose,
+}: {
+  zones: ZoneFeatureCollection;
+  aggregates: Map<string, ZoneAggregate>;
+  selectedZoneId: string | null;
+  user: User | null;
+  reports: Report[];
+  onClose: () => void;
+}) {
+  const feature = useMemo(
+    () => zones.features.find((f) => f.properties.id === selectedZoneId) ?? null,
+    [zones, selectedZoneId],
+  );
+
+  if (!feature) return null;
+  const bounds = featureBounds(feature);
+  if (!bounds) return null;
+  const center = L.latLngBounds(bounds as L.LatLngBoundsLiteral).getCenter();
+
+  return (
+    <Popup
+      key={feature.properties.id}
+      position={center}
+      eventHandlers={{ remove: onClose }}
+      closeButton
+      autoPan
+      autoPanPadding={[24, 80]}
+      minWidth={220}
+    >
+      <ZonePopup
+        zone={feature.properties as ZoneProperties}
+        aggregate={aggregates.get(feature.properties.delegationId)}
+        user={user}
+        reports={reports}
+        onClose={onClose}
+      />
+    </Popup>
+  );
+}
+
+export function MapView({
+  zones,
+  aggregates,
+  user,
+  reports,
+  selectedZoneId,
+  onSelectZone,
+}: MapViewProps) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
+
+  return (
+    <MapContainer
+      bounds={TUNISIA_BOUNDS}
+      maxBounds={[
+        [28.5, 5.5],
+        [38.5, 13.5],
+      ]}
+      minZoom={5}
+      maxZoom={13}
+      zoomControl
+      className="h-full w-full"
+      preferCanvas
+      attributionControl
+      whenReady={() => setReady(true)}
+    >
+      <TileLayer
+        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        maxZoom={19}
+        crossOrigin
+      />
+      {ready && (
+        <ZoneLayer
+          data={zones}
+          aggregates={aggregates}
+          user={user}
+          reports={reports}
+          selectedZoneId={selectedZoneId}
+          onSelectZone={onSelectZone}
+        />
+      )}
+      <PopupBridge
+        zones={zones}
+        aggregates={aggregates}
+        selectedZoneId={selectedZoneId}
+        user={user}
+        reports={reports}
+        onClose={() => onSelectZone(null)}
+      />
+    </MapContainer>
+  );
+}

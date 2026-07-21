@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 2px solid #f59e0b;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold transition-colors select-none;
+    min-height: 44px;
+  }
+
+  .btn-primary {
+    @apply btn bg-status-red text-white hover:bg-red-700 active:bg-red-800;
+  }
+
+  .btn-secondary {
+    @apply btn bg-slate-700 text-slate-100 hover:bg-slate-600 active:bg-slate-500;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-slate-100 hover:bg-slate-800/60;
+  }
+
+  .card {
+    @apply rounded-xl bg-slate-900/95 shadow-lg ring-1 ring-white/10 backdrop-blur;
+  }
+}
+
+@media (prefers-contrast: more) {
+  body {
+    background-color: #000;
+    color: #fff;
+  }
+}
+
+/* Leaflet tweaks for dark theme + mobile */
+.leaflet-container {
+  background: #0f172a;
+  font-family: inherit;
+  height: 100%;
+  width: 100%;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: #0f172a;
+  color: #f8fafc;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px;
+  min-width: 200px;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: #cbd5e1;
+}
+
+.leaflet-control-attribution {
+  background: rgba(15, 23, 42, 0.85) !important;
+  color: #94a3b8 !important;
+}
+
+.leaflet-control-attribution a {
+  color: #cbd5e1 !important;
+}
+
+.leaflet-control-zoom a {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-bottom-color: #334155 !important;
+}
+
+/* FirebaseUI dark-theme tweaks (the widget is loaded on demand) */
+.firebaseui-host .firebaseui-container {
+  background: transparent;
+  color: #f1f5f9;
+  box-shadow: none;
+  max-width: 100%;
+}
+
+.firebaseui-host .firebaseui-card-header,
+.firebaseui-host .firebaseui-card-content,
+.firebaseui-host .firebaseui-card-actions {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.firebaseui-host .firebaseui-title,
+.firebaseui-host .firebaseui-subtitle,
+.firebaseui-host .firebaseui-text {
+  color: #e2e8f0;
+}
+
+.firebaseui-host .firebaseui-idp-button {
+  max-width: 100%;
+  min-height: 44px;
+  border-radius: 10px;
+}
+
+.firebaseui-host .firebaseui-tos {
+  color: #94a3b8;
+}
+
+.firebaseui-host .firebaseui-tos a {
+  color: #f59e0b;
+}
+

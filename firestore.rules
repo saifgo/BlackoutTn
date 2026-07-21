@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Zones metadata is public read (all authenticated users). Only administrators
+    // (via server-side tools) should write, so no client writes are allowed.
+    match /zones/{zoneId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Reports may be created by any authenticated user for themselves.
+    // Reports are immutable once created (no update, no delete).
+    match /reports/{reportId} {
+      allow read: if request.auth != null;
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['zoneId', 'userId', 'type', 'createdAt', 'sectorId', 'sectorName'])
+        && request.resource.data.keys().hasAll(['zoneId', 'userId', 'type', 'createdAt'])
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.type in ['blackout', 'voltage']
+        && request.resource.data.zoneId is string
+        && request.resource.data.zoneId.size() > 0
+        && request.resource.data.zoneId.size() < 128
+        && request.resource.data.createdAt == request.time
+        && (!('sectorId' in request.resource.data)
+            || (request.resource.data.sectorId is string
+                && request.resource.data.sectorId.size() > 0
+                && request.resource.data.sectorId.size() < 128))
+        && (!('sectorName' in request.resource.data)
+            || (request.resource.data.sectorName is string
+                && request.resource.data.sectorName.size() < 128));
+
+      allow update, delete: if false;
+    }
+  }
+}

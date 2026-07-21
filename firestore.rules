@@ -18,7 +18,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['zoneId', 'userId', 'type', 'createdAt', 'sectorId', 'sectorName'])
         && request.resource.data.keys().hasAll(['zoneId', 'userId', 'type', 'createdAt'])
         && request.resource.data.userId == request.auth.uid
-        && request.resource.data.type in ['blackout', 'voltage']
+        && request.resource.data.type in ['blackout', 'voltage', 'restore']
         && request.resource.data.zoneId is string
         && request.resource.data.zoneId.size() > 0
         && request.resource.data.zoneId.size() < 128

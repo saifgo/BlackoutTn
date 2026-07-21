@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { MapContainer, TileLayer, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Popup, CircleMarker, Tooltip } from 'react-leaflet';
 import type { LatLngBoundsExpression } from 'leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -26,6 +26,7 @@ interface MapViewProps {
   reports: Report[];
   selectedZoneId: string | null;
   onSelectZone: (zoneId: string | null) => void;
+  userLocation: { lat: number; lng: number } | null;
 }
 
 function PopupBridge({
@@ -81,6 +82,7 @@ export function MapView({
   reports,
   selectedZoneId,
   onSelectZone,
+  userLocation,
 }: MapViewProps) {
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
@@ -124,6 +126,22 @@ export function MapView({
         reports={reports}
         onClose={() => onSelectZone(null)}
       />
+      {userLocation && (
+        <CircleMarker
+          center={[userLocation.lat, userLocation.lng]}
+          radius={8}
+          pathOptions={{
+            color: '#ffffff',
+            weight: 2,
+            fillColor: '#2563eb',
+            fillOpacity: 1,
+          }}
+        >
+          <Tooltip direction="top" offset={[0, -8]} opacity={0.9}>
+            Votre position
+          </Tooltip>
+        </CircleMarker>
+      )}
     </MapContainer>
   );
 }

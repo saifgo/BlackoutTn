@@ -7,6 +7,7 @@ import {
   formatRateLimitCountdown,
   submitReport,
 } from '../../lib/reports';
+import { trackEvent } from '../../firebase/analytics';
 
 interface ZonePopupProps {
   zone: ZoneProperties;
@@ -44,15 +45,35 @@ export function ZonePopup({ zone, aggregate, user, reports, onClose }: ZonePopup
         sectorId: zone.id,
         sectorName: zone.name,
       });
-      setMessage('Signalement envoye. Merci !');
+      setMessage(
+        type === 'restore'
+          ? 'Retour du courant signale. Merci !'
+          : 'Signalement envoye. Merci !',
+      );
       setMessageKind('success');
+      trackEvent('report_submitted', {
+        report_type: type,
+        delegation_id: zone.delegationId,
+        delegation: zone.delegation,
+        governorate: zone.governorate,
+      });
     } catch (err) {
       if (err instanceof RateLimitError) {
         setMessage(
           `Vous avez deja signale cette zone. Reessayez dans ${formatRateLimitCountdown(err.retryAt)}.`,
         );
+        trackEvent('report_rate_limited', {
+          report_type: type,
+          delegation_id: zone.delegationId,
+          governorate: zone.governorate,
+        });
       } else {
         setMessage((err as Error).message ?? 'Erreur lors de l\u2019envoi.');
+        trackEvent('report_failed', {
+          report_type: type,
+          delegation_id: zone.delegationId,
+          governorate: zone.governorate,
+        });
       }
       setMessageKind('error');
     } finally {
@@ -92,6 +113,15 @@ export function ZonePopup({ zone, aggregate, user, reports, onClose }: ZonePopup
           aria-label={`Signaler probleme de tension pour ${zone.name}`}
         >
           {submitting === 'voltage' ? 'Envoi...' : 'Probleme de tension'}
+        </button>
+        <button
+          type="button"
+          className="btn-secondary w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-60 disabled:cursor-not-allowed"
+          onClick={() => handleReport('restore')}
+          disabled={disabled}
+          aria-label={`Signaler le retour du courant pour ${zone.name}`}
+        >
+          {submitting === 'restore' ? 'Envoi...' : 'Le courant est revenu'}
         </button>
         <button
           type="button"

@@ -29,7 +29,8 @@ function toReport(id: string, data: DocumentData): Report | null {
         : null;
   if (createdAt === null) return null;
   if (typeof data.zoneId !== 'string' || typeof data.userId !== 'string') return null;
-  const type: ReportType = data.type === 'voltage' ? 'voltage' : 'blackout';
+  const type: ReportType =
+    data.type === 'voltage' || data.type === 'restore' ? data.type : 'blackout';
   const report: Report = { id, zoneId: data.zoneId, userId: data.userId, type, createdAt };
   if (typeof data.sectorId === 'string') report.sectorId = data.sectorId;
   if (typeof data.sectorName === 'string') report.sectorName = data.sectorName;

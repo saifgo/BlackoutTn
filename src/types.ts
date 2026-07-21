@@ -1,6 +1,9 @@
 import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 
-export type ReportType = 'blackout' | 'voltage';
+export type ReportType = 'blackout' | 'voltage' | 'restore';
+
+/** Report types that signal an ongoing outage (counted toward map severity). */
+export const OUTAGE_REPORT_TYPES: readonly ReportType[] = ['blackout', 'voltage'];
 
 export type ZoneStatus = 'gray' | 'yellow' | 'orange' | 'red';
 

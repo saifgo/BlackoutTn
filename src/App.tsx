@@ -3,7 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { TopBar } from './components/TopBar';
 import { BottomPanel } from './components/BottomPanel';
 import { StatsPanel } from './components/StatsPanel';
-import { loadZones } from './lib/geo';
+import { findZoneIdAtPoint, loadZones } from './lib/geo';
+import { trackEvent } from './firebase/analytics';
 import { useAuth } from './hooks/useAuth';
 import { useReports } from './hooks/useReports';
 import { useZoneStatus } from './hooks/useZoneStatus';
@@ -29,6 +30,9 @@ export default function App() {
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [statsOpen, setStatsOpen] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locateError, setLocateError] = useState<string | null>(null);
 
   useEffect(() => {
     document.body.classList.add('overflow-hidden');
@@ -41,7 +45,13 @@ export default function App() {
     return null;
   }, [auth.error, reportsError]);
 
+  function selectZone(id: string | null, source: string) {
+    if (id) trackEvent('zone_selected', { source });
+    setSelectedZoneId(id);
+  }
+
   function handleReportShortcut() {
+    trackEvent('report_shortcut_clicked');
     if (!zonesQuery.data) return;
     if (selectedZoneId) return;
     // Aggregates are keyed by delegation; map the busiest delegation to one of
@@ -53,19 +63,68 @@ export default function App() {
       ? features.find((f) => f.properties.delegationId === topDelegationId)
       : undefined;
     const first = sector?.properties.id ?? features[0]?.properties.id ?? null;
-    if (first) setSelectedZoneId(first);
+    if (first) selectZone(first, 'report_shortcut');
+  }
+
+  function handleLocate() {
+    trackEvent('locate_clicked');
+    const zones = zonesQuery.data;
+    if (!zones) return;
+    if (!('geolocation' in navigator)) {
+      setLocateError('Geolocalisation non disponible sur cet appareil.');
+      trackEvent('locate_unavailable');
+      return;
+    }
+    setLocating(true);
+    setLocateError(null);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation({ lat: latitude, lng: longitude });
+        const zoneId = findZoneIdAtPoint(zones, longitude, latitude);
+        setLocating(false);
+        if (zoneId) {
+          selectZone(zoneId, 'locate');
+          trackEvent('locate_success', { in_coverage: true });
+        } else {
+          setLocateError('Vous etes en dehors des zones couvertes.');
+          trackEvent('locate_success', { in_coverage: false });
+        }
+      },
+      (error) => {
+        setLocating(false);
+        setLocateError(
+          error.code === error.PERMISSION_DENIED
+            ? 'Acces a la position refuse. Autorisez la localisation.'
+            : 'Position introuvable, reessayez.',
+        );
+        trackEvent('locate_failed', {
+          reason: error.code === error.PERMISSION_DENIED ? 'permission_denied' : 'unavailable',
+        });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
   }
 
   return (
     <div className="relative h-full w-full">
       <TopBar
         zones={zonesQuery.data ?? null}
-        onSelectZone={(id) => setSelectedZoneId(id)}
-        onOpenStats={() => setStatsOpen(true)}
+        onSelectZone={(id) => selectZone(id, 'search')}
+        onOpenStats={() => {
+          trackEvent('stats_opened');
+          setStatsOpen(true);
+        }}
         user={auth.user}
         authActionPending={auth.actionPending}
-        onOpenSignIn={() => setSignInOpen(true)}
-        onSignOut={() => void auth.signOut()}
+        onOpenSignIn={() => {
+          trackEvent('sign_in_dialog_opened');
+          setSignInOpen(true);
+        }}
+        onSignOut={() => {
+          trackEvent('sign_out_clicked');
+          void auth.signOut();
+        }}
       />
 
       <main className="absolute inset-0" aria-label="Carte des coupures d'electricite">
@@ -81,7 +140,8 @@ export default function App() {
               user={auth.user}
               reports={reports}
               selectedZoneId={selectedZoneId}
-              onSelectZone={setSelectedZoneId}
+              onSelectZone={(id) => selectZone(id, 'map')}
+              userLocation={userLocation}
             />
           </Suspense>
         )}
@@ -91,6 +151,9 @@ export default function App() {
         onReport={handleReportShortcut}
         authReady={!!auth.user}
         authError={authError}
+        onLocate={handleLocate}
+        locating={locating}
+        locateError={locateError}
       />
 
       <StatsPanel

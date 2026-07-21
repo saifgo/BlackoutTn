@@ -29,7 +29,7 @@ export async function submitReport({
   sectorId,
   sectorName,
 }: SubmitReportOptions): Promise<void> {
-  const check = canUserReport(existingReports, userId, zoneId);
+  const check = canUserReport(existingReports, userId, zoneId, type);
   if (!check.allowed) throw new RateLimitError(check.retryAt);
 
   const payload: Record<string, unknown> = {

@@ -3,11 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { TopBar } from './components/TopBar';
 import { BottomPanel } from './components/BottomPanel';
 import { StatsPanel } from './components/StatsPanel';
+import { Timeline } from './components/Timeline';
 import { findZoneIdAtPoint, loadZones } from './lib/geo';
 import { trackEvent } from './firebase/analytics';
 import { useAuth } from './hooks/useAuth';
 import { useReports } from './hooks/useReports';
 import { useZoneStatus } from './hooks/useZoneStatus';
+import { historyStartMs } from './lib/status';
 
 const MapView = lazy(() =>
   import('./components/Map/MapView').then((m) => ({ default: m.MapView })),
@@ -25,7 +27,9 @@ export default function App() {
     staleTime: Infinity,
   });
   const { reports, lastUpdate, error: reportsError } = useReports(!!auth.user);
-  const aggregates = useZoneStatus(reports);
+  // `null` = follow the live clock; a timestamp freezes the map to that instant.
+  const [timelineTime, setTimelineTime] = useState<number | null>(null);
+  const aggregates = useZoneStatus(reports, timelineTime);
 
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [statsOpen, setStatsOpen] = useState(false);
@@ -54,15 +58,12 @@ export default function App() {
     trackEvent('report_shortcut_clicked');
     if (!zonesQuery.data) return;
     if (selectedZoneId) return;
-    // Aggregates are keyed by delegation; map the busiest delegation to one of
-    // its sectors so the popup (keyed by sector id) can open.
+    // Aggregates are keyed by sector id, so the busiest zone is already the
+    // sector the popup expects.
     const withReports = Array.from(aggregates.values()).sort((a, b) => b.count - a.count);
-    const topDelegationId = withReports[0]?.zoneId ?? null;
+    const topSectorId = withReports[0]?.zoneId ?? null;
     const features = zonesQuery.data.features;
-    const sector = topDelegationId
-      ? features.find((f) => f.properties.delegationId === topDelegationId)
-      : undefined;
-    const first = sector?.properties.id ?? features[0]?.properties.id ?? null;
+    const first = topSectorId ?? features[0]?.properties.id ?? null;
     if (first) selectZone(first, 'report_shortcut');
   }
 
@@ -147,14 +148,30 @@ export default function App() {
         )}
       </main>
 
-      <BottomPanel
-        onReport={handleReportShortcut}
-        authReady={!!auth.user}
-        authError={authError}
-        onLocate={handleLocate}
-        locating={locating}
-        locateError={locateError}
-      />
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[1000] flex flex-col items-center gap-2 px-3 pb-3 sm:px-4 sm:pb-4"
+        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 12px)' }}
+      >
+        {auth.user && (
+          <Timeline
+            reports={reports}
+            startTime={historyStartMs()}
+            value={timelineTime}
+            onChange={(t) => {
+              if (t !== null && timelineTime === null) trackEvent('timeline_scrubbed');
+              setTimelineTime(t);
+            }}
+          />
+        )}
+        <BottomPanel
+          onReport={handleReportShortcut}
+          authReady={!!auth.user}
+          authError={authError}
+          onLocate={handleLocate}
+          locating={locating}
+          locateError={locateError}
+        />
+      </div>
 
       <StatsPanel
         open={statsOpen}

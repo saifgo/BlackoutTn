@@ -10,7 +10,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import type { Report, ReportType } from '../types';
-import { REPORT_WINDOW_MS } from '../lib/status';
+import { historyStartMs } from '../lib/status';
 
 export interface UseReportsState {
   reports: Report[];
@@ -47,7 +47,7 @@ export function useReports(enabled: boolean = true): UseReportsState {
 
   useEffect(() => {
     if (!enabled) return;
-    const since = Timestamp.fromMillis(Date.now() - REPORT_WINDOW_MS);
+    const since = Timestamp.fromMillis(historyStartMs());
     const q = query(collection(db, 'reports'), where('createdAt', '>=', since));
 
     const unsubscribe = onSnapshot(

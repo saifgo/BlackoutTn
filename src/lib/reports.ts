@@ -1,7 +1,13 @@
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import type { Report, ReportType } from '../types';
-import { RATE_LIMIT_MS, canUserReport } from './status';
+import {
+  GLOBAL_VOTE_LIMIT,
+  GLOBAL_VOTE_WINDOW_MS,
+  RATE_LIMIT_MS,
+  canUserReport,
+  canUserVoteGlobal,
+} from './status';
 
 export interface SubmitReportOptions {
   zoneId: string;
@@ -15,9 +21,28 @@ export interface SubmitReportOptions {
 export class RateLimitError extends Error {
   retryAt: number;
   constructor(retryAt: number) {
-    super('Rate limit: you can only report once per zone every 30 minutes.');
+    super('Rate limit: you can only report once per zone every 15 minutes.');
     this.name = 'RateLimitError';
     this.retryAt = retryAt;
+  }
+}
+
+/**
+ * Thrown when a user has hit the global cap on total reports across all zones
+ * within the rolling window (see GLOBAL_VOTE_LIMIT / GLOBAL_VOTE_WINDOW_MS).
+ */
+export class GlobalRateLimitError extends Error {
+  retryAt: number;
+  limit: number;
+  constructor(retryAt: number) {
+    super(
+      `Global rate limit: you can only submit ${GLOBAL_VOTE_LIMIT} reports every ${Math.round(
+        GLOBAL_VOTE_WINDOW_MS / 60_000,
+      )} minutes.`,
+    );
+    this.name = 'GlobalRateLimitError';
+    this.retryAt = retryAt;
+    this.limit = GLOBAL_VOTE_LIMIT;
   }
 }
 
@@ -29,6 +54,11 @@ export async function submitReport({
   sectorId,
   sectorName,
 }: SubmitReportOptions): Promise<void> {
+  // Global cap first: total reports per user across all zones within the window.
+  const globalCheck = canUserVoteGlobal(existingReports, userId);
+  if (!globalCheck.allowed) throw new GlobalRateLimitError(globalCheck.retryAt);
+
+  // Then the per-zone/category cooldown.
   const check = canUserReport(existingReports, userId, zoneId, type);
   if (!check.allowed) throw new RateLimitError(check.retryAt);
 
@@ -51,4 +81,22 @@ export function formatRateLimitCountdown(retryAt: number, now: number = Date.now
   return `${minutes} minutes`;
 }
 
+/**
+ * Formats a past timestamp as a short French "il y a ..." relative string
+ * (e.g. "il y a 5 min", "il y a 2 h", "il y a 3 j"). Returns an em dash for
+ * missing timestamps.
+ */
+export function formatRelativeTime(ts: number | null, now: number = Date.now()): string {
+  if (!ts) return '\u2014';
+  const diff = Math.max(0, now - ts);
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 1) return "\u00e0 l\u2019instant";
+  if (minutes < 60) return `il y a ${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `il y a ${hours} h`;
+  const days = Math.floor(hours / 24);
+  return `il y a ${days} j`;
+}
+
 export const RATE_LIMIT_MINUTES = Math.round(RATE_LIMIT_MS / 60_000);
+export const GLOBAL_VOTE_WINDOW_MINUTES = Math.round(GLOBAL_VOTE_WINDOW_MS / 60_000);

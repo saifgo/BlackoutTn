@@ -94,6 +94,39 @@ export function findZoneIdAtPoint(
   return null;
 }
 
+/** Maximum distance (km) between a user and a sector to allow reporting. */
+export const MAX_REPORT_DISTANCE_KM = 50;
+
+/** Approximate center of a sector, derived from its bounding box. */
+export function featureCenter(
+  feature: Feature<Polygon | MultiPolygon, ZoneProperties>,
+): { lat: number; lng: number } | null {
+  const bounds = featureBounds(feature);
+  if (!bounds) return null;
+  const [[minLat, minLng], [maxLat, maxLng]] = bounds as [
+    [number, number],
+    [number, number],
+  ];
+  return { lat: (minLat + maxLat) / 2, lng: (minLng + maxLng) / 2 };
+}
+
+/** Great-circle distance in kilometers between two coordinates (Haversine). */
+export function distanceKm(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+): number {
+  const R = 6371; // Earth radius in km
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
 export function slugify(input: string): string {
   return input
     .toLowerCase()

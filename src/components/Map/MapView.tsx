@@ -14,6 +14,8 @@ import { ZoneLayer } from './ZoneLayer';
 import { ZonePopup } from './ZonePopup';
 import { featureBounds } from '../../lib/geo';
 
+type LatLng = { lat: number; lng: number };
+
 const TUNISIA_BOUNDS: LatLngBoundsExpression = [
   [30.2, 7.5],
   [37.6, 11.6],
@@ -35,6 +37,7 @@ function PopupBridge({
   selectedZoneId,
   user,
   reports,
+  userLocation,
   onClose,
 }: {
   zones: ZoneFeatureCollection;
@@ -42,6 +45,7 @@ function PopupBridge({
   selectedZoneId: string | null;
   user: User | null;
   reports: Report[];
+  userLocation: LatLng | null;
   onClose: () => void;
 }) {
   const feature = useMemo(
@@ -59,16 +63,19 @@ function PopupBridge({
       key={feature.properties.id}
       position={center}
       eventHandlers={{ remove: onClose }}
-      closeButton
-      autoPan
-      autoPanPadding={[24, 80]}
-      minWidth={220}
-    >
+        closeButton
+        autoPan
+        autoPanPadding={[24, 80]}
+        minWidth={240}
+        maxWidth={360}
+      >
       <ZonePopup
         zone={feature.properties as ZoneProperties}
-        aggregate={aggregates.get(feature.properties.delegationId)}
+        aggregate={aggregates.get(feature.properties.id)}
         user={user}
         reports={reports}
+        userLocation={userLocation}
+        zoneCenter={{ lat: center.lat, lng: center.lng }}
         onClose={onClose}
       />
     </Popup>
@@ -124,6 +131,7 @@ export function MapView({
         selectedZoneId={selectedZoneId}
         user={user}
         reports={reports}
+        userLocation={userLocation}
         onClose={() => onSelectZone(null)}
       />
       {userLocation && (

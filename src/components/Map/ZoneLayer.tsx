@@ -22,9 +22,9 @@ interface ZoneLayerProps {
 }
 
 function styleForZone(props: ZoneProperties, aggregates: Map<string, ZoneAggregate>): PathOptions {
-  // Coloring is aggregated at the delegation level, so every sector in a
-  // delegation shares the parent delegation's status.
-  const agg = aggregates.get(props.delegationId);
+  // Coloring is aggregated at the sector (imada) level, so each sector only
+  // reflects the reports that target it, not its whole parent delegation.
+  const agg = aggregates.get(props.id);
   const status = agg?.status ?? 'gray';
   return {
     fillColor: STATUS_COLORS[status],

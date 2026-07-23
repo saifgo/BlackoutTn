@@ -20,18 +20,18 @@ export function StatsPanel({ open, onClose, aggregates, zones, lastUpdate }: Sta
     let totalReports = 0;
     let affectedZones = 0;
     const perGovernorate = new Map<string, number>();
-    // Aggregates are keyed by delegation id, so map delegation -> governorate.
-    const govByDelegation = new Map<string, string>();
+    // Aggregates are keyed by sector id, so map sector -> governorate.
+    const govBySector = new Map<string, string>();
     if (zones) {
       for (const f of zones.features) {
-        govByDelegation.set(f.properties.delegationId, f.properties.governorate);
+        govBySector.set(f.properties.id, f.properties.governorate);
       }
     }
     for (const agg of aggregates.values()) {
       if (agg.count <= 0) continue;
       totalReports += agg.count;
       affectedZones += 1;
-      const gov = govByDelegation.get(agg.zoneId) ?? 'Inconnu';
+      const gov = govBySector.get(agg.zoneId) ?? 'Inconnu';
       perGovernorate.set(gov, (perGovernorate.get(gov) ?? 0) + agg.count);
     }
     let topGov: { name: string; count: number } | null = null;

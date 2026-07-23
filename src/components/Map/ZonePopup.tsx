@@ -12,14 +12,11 @@ import {
 } from '../../lib/reports';
 import { trackEvent } from '../../firebase/analytics';
 
-type LatLng = { lat: number; lng: number };
-
 interface ZonePopupProps {
   zone: ZoneProperties;
   aggregate?: ZoneAggregate;
   user: User | null;
   reports: Report[];
-  userLocation: LatLng | null;
   onClose: () => void;
 }
 
@@ -28,7 +25,6 @@ export function ZonePopup({
   aggregate,
   user,
   reports,
-  userLocation,
   onClose,
 }: ZonePopupProps) {
   const [submitting, setSubmitting] = useState<ReportType | null>(null);
@@ -40,21 +36,14 @@ export function ZonePopup({
 
   const stats = useMemo(() => sectorStats(reports, zone.id), [reports, zone.id]);
 
-  const locationMissing = !userLocation;
-
   const disabled = useMemo(
-    () => !user || submitting !== null || locationMissing,
-    [user, submitting, locationMissing],
+    () => !user || submitting !== null,
+    [user, submitting],
   );
 
   async function handleReport(type: ReportType) {
     if (!user) {
       setMessage('الاتصال المجهول جاري، عاود جرّب.');
-      setMessageKind('error');
-      return;
-    }
-    if (locationMissing) {
-      setMessage('فعّل «موقعي» باش تبلّغ على منطقة قريبة منك.');
       setMessageKind('error');
       return;
     }
@@ -178,13 +167,6 @@ export function ZonePopup({
       ) : (
         <p className="mb-3 rounded-lg bg-slate-800/60 px-3 py-2.5 text-center text-xs text-slate-400">
           ما فماش تبليغات في آخر 7 أيام.
-        </p>
-      )}
-
-      {locationMissing && (
-        <p className="mb-3 flex items-start gap-1.5 rounded-lg bg-amber-500/10 px-2.5 py-2 text-xs text-amber-300">
-          <span aria-hidden>&#9888;</span>
-          فعّل &laquo; موقعي &raquo; باش تبلّغ على منطقة قريبة منك.
         </p>
       )}
 

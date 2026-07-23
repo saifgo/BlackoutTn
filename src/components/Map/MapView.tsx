@@ -34,7 +34,6 @@ function PopupBridge({
   selectedZoneId,
   user,
   reports,
-  userLocation,
   onClose,
 }: {
   zones: ZoneFeatureCollection;
@@ -42,7 +41,6 @@ function PopupBridge({
   selectedZoneId: string | null;
   user: User | null;
   reports: Report[];
-  userLocation: LatLng | null;
   onClose: () => void;
 }) {
   const feature = useMemo(
@@ -68,7 +66,6 @@ function PopupBridge({
           aggregate={aggregates.get(feature.properties.id)}
           user={user}
           reports={reports}
-          userLocation={userLocation}
           onClose={onClose}
         />
       </div>
@@ -143,7 +140,6 @@ export function MapView({
         selectedZoneId={selectedZoneId}
         user={user}
         reports={reports}
-        userLocation={userLocation}
         onClose={() => onSelectZone(null)}
       />
     </>

@@ -11,7 +11,6 @@ import type {
 } from '../../types';
 import { ZoneLayer } from './ZoneLayer';
 import { ZonePopup } from './ZonePopup';
-type LatLng = { lat: number; lng: number };
 
 const TUNISIA_BOUNDS: LatLngBoundsExpression = [
   [30.2, 7.5],

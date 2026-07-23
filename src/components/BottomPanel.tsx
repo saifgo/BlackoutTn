@@ -1,8 +1,6 @@
 import { Legend } from './Legend';
 
 interface BottomPanelProps {
-  onReport: () => void;
-  authReady: boolean;
   authError: string | null;
   onLocate: () => void;
   locating: boolean;
@@ -10,8 +8,6 @@ interface BottomPanelProps {
 }
 
 export function BottomPanel({
-  onReport,
-  authReady,
   authError,
   onLocate,
   locating,
@@ -31,15 +27,6 @@ export function BottomPanel({
       >
         <LocationIcon />
         {locating ? 'جاري تحديد الموقع...' : 'موقعي'}
-      </button>
-      <button
-        type="button"
-        onClick={onReport}
-        disabled={!authReady}
-        className="btn-primary w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
-        aria-label="بلّغ على قطوعة"
-      >
-        بلّغ على قطوعة
       </button>
       {(authError || locateError) && (
         <p role="alert" className="text-xs text-red-300 sm:ml-2">

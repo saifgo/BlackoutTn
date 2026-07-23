@@ -185,26 +185,15 @@ export function ZonePopup({
           <BoltIcon />
           {submitting === 'blackout' ? 'جاري الإرسال...' : 'ما فماش ضو'}
         </button>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            className="btn-secondary bg-amber-600 hover:bg-amber-700 active:bg-amber-800 disabled:opacity-60 disabled:cursor-not-allowed"
-            onClick={() => handleReport('voltage')}
-            disabled={disabled}
-            aria-label={`بلّغ على مشكل في الڤولطاج في ${zone.name}`}
-          >
-            {submitting === 'voltage' ? 'جاري الإرسال...' : 'ڤولطاج'}
-          </button>
-          <button
-            type="button"
-            className="btn-secondary bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-60 disabled:cursor-not-allowed"
-            onClick={() => handleReport('restore')}
-            disabled={disabled}
-            aria-label={`بلّغ على رجوع الضو في ${zone.name}`}
-          >
-            {submitting === 'restore' ? 'جاري الإرسال...' : 'الضو رجع'}
-          </button>
-        </div>
+        <button
+          type="button"
+          className="btn-secondary w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-60 disabled:cursor-not-allowed"
+          onClick={() => handleReport('restore')}
+          disabled={disabled}
+          aria-label={`بلّغ على رجوع الضو في ${zone.name}`}
+        >
+          {submitting === 'restore' ? 'جاري الإرسال...' : 'الضو رجع'}
+        </button>
         <button
           type="button"
           className="btn-ghost w-full !py-2 text-slate-400"

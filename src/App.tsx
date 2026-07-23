@@ -54,19 +54,6 @@ export default function App() {
     setSelectedZoneId(id);
   }
 
-  function handleReportShortcut() {
-    trackEvent('report_shortcut_clicked');
-    if (!zonesQuery.data) return;
-    if (selectedZoneId) return;
-    // Aggregates are keyed by sector id, so the busiest zone is already the
-    // sector the popup expects.
-    const withReports = Array.from(aggregates.values()).sort((a, b) => b.count - a.count);
-    const topSectorId = withReports[0]?.zoneId ?? null;
-    const features = zonesQuery.data.features;
-    const first = topSectorId ?? features[0]?.properties.id ?? null;
-    if (first) selectZone(first, 'report_shortcut');
-  }
-
   function handleLocate() {
     trackEvent('locate_clicked');
     const zones = zonesQuery.data;
@@ -164,8 +151,6 @@ export default function App() {
           />
         )}
         <BottomPanel
-          onReport={handleReportShortcut}
-          authReady={!!auth.user}
           authError={authError}
           onLocate={handleLocate}
           locating={locating}

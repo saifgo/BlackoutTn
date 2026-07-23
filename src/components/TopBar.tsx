@@ -1,6 +1,7 @@
 import type { User } from 'firebase/auth';
 import { SearchBox } from './SearchBox';
 import { UserMenu } from './UserMenu';
+import { InstallButton } from './InstallButton';
 import type { ZoneFeatureCollection } from '../types';
 
 interface TopBarProps {
@@ -41,12 +42,13 @@ export function TopBar({
         <button
           type="button"
           onClick={onOpenStats}
-          aria-label="Ouvrir les statistiques"
+          aria-label="حل الإحصائيات"
           className="btn-secondary shrink-0 !min-h-[40px] !px-3 !py-2 text-xs sm:text-sm"
         >
           <ChartIcon className="h-4 w-4" aria-hidden />
-          <span className="hidden sm:inline">Stats</span>
+          <span className="hidden sm:inline">إحصائيات</span>
         </button>
+        <InstallButton />
         <UserMenu
           user={user}
           actionPending={authActionPending}

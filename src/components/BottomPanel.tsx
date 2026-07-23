@@ -27,19 +27,19 @@ export function BottomPanel({
         onClick={onLocate}
         disabled={locating}
         className="btn-secondary w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
-        aria-label="Trouver ma position et ouvrir ma zone"
+        aria-label="لقّي موقعي وحل المنطقة متاعي"
       >
         <LocationIcon />
-        {locating ? 'Localisation...' : 'Ma position'}
+        {locating ? 'جاري تحديد الموقع...' : 'موقعي'}
       </button>
       <button
         type="button"
         onClick={onReport}
         disabled={!authReady}
         className="btn-primary w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
-        aria-label="Signaler une coupure"
+        aria-label="بلّغ على قطوعة"
       >
-        Signaler une coupure
+        بلّغ على قطوعة
       </button>
       {(authError || locateError) && (
         <p role="alert" className="text-xs text-red-300 sm:ml-2">

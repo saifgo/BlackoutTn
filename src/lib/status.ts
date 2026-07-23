@@ -69,16 +69,18 @@ export function statusForCount(count: number): ZoneStatus {
 
 export const STATUS_COLORS: Record<ZoneStatus, string> = {
   gray: '#6b7280',
+  green: '#16a34a',
   yellow: '#f59e0b',
   orange: '#ea580c',
   red: '#dc2626',
 };
 
 export const STATUS_LABELS: Record<ZoneStatus, string> = {
-  gray: 'Normal',
-  yellow: 'Signalements isoles',
-  orange: 'Coupure probable',
-  red: 'Coupure confirmee',
+  gray: 'عادي',
+  green: 'الضو رجع',
+  yellow: 'تبليغات مبعثرة',
+  orange: 'قطوعة محتملة',
+  red: 'قطوعة مؤكّدة',
 };
 
 export function isReportActive(report: Report, now: number = Date.now()): boolean {
@@ -130,6 +132,20 @@ export function aggregateReports(
   for (const agg of map.values()) {
     agg.status = statusForCount(agg.count);
   }
+
+  // A sector whose latest active signal is a 'restore' vote (i.e. someone voted
+  // that electricity is back and no outage report outlives that restore) is
+  // shown green to highlight that power has been confirmed back.
+  for (const [key, restoredAt] of latestRestoreByZone) {
+    if (map.has(key)) continue; // still has unresolved outages -> keep outage colour
+    map.set(key, {
+      zoneId: key,
+      count: 0,
+      lastReportAt: restoredAt,
+      status: 'green',
+    });
+  }
+
   return map;
 }
 

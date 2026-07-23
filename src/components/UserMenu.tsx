@@ -40,17 +40,17 @@ export function UserMenu({
         type="button"
         onClick={onOpenSignIn}
         disabled={actionPending}
-        aria-label="Se connecter"
+        aria-label="دخول"
         className="shrink-0 inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-slate-800 shadow ring-1 ring-black/5 transition hover:bg-slate-100 active:bg-slate-200 disabled:opacity-60 disabled:cursor-not-allowed sm:text-sm"
         style={{ minHeight: 40 }}
       >
         <GoogleIcon className="h-4 w-4" aria-hidden />
-        <span>Se connecter</span>
+        <span>دخول</span>
       </button>
     );
   }
 
-  const displayName = user.displayName ?? user.email ?? 'Utilisateur';
+  const displayName = user.displayName ?? user.email ?? 'مستخدم';
   const photo = user.photoURL;
   const initials = (displayName.trim()[0] ?? 'U').toUpperCase();
 
@@ -61,7 +61,7 @@ export function UserMenu({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={`Compte : ${displayName}`}
+        aria-label={`الحساب: ${displayName}`}
         className="flex items-center gap-2 rounded-lg bg-slate-800/80 px-2 py-1.5 text-slate-100 ring-1 ring-white/10 hover:bg-slate-700 disabled:opacity-60"
         style={{ minHeight: 40 }}
         disabled={actionPending}
@@ -90,8 +90,8 @@ export function UserMenu({
       {open && (
         <div
           role="menu"
-          aria-label="Menu utilisateur"
-          className="absolute right-0 top-full z-[1100] mt-1 w-56 overflow-hidden rounded-lg bg-slate-900/95 shadow-xl ring-1 ring-white/10 backdrop-blur"
+          aria-label="قائمة المستخدم"
+          className="absolute left-0 top-full z-[1100] mt-1 w-56 overflow-hidden rounded-lg bg-slate-900/95 shadow-xl ring-1 ring-white/10 backdrop-blur"
         >
           <div className="px-3 py-2 text-xs text-slate-400">
             <div className="truncate font-semibold text-slate-100">{displayName}</div>
@@ -105,9 +105,9 @@ export function UserMenu({
               setOpen(false);
               onSignOut();
             }}
-            className="w-full px-3 py-2 text-left text-sm text-slate-100 hover:bg-slate-800"
+            className="w-full px-3 py-2 text-right text-sm text-slate-100 hover:bg-slate-800"
           >
-            Se deconnecter
+            اخرج
           </button>
         </div>
       )}

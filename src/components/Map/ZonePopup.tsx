@@ -10,7 +10,6 @@ import {
   formatRelativeTime,
   submitReport,
 } from '../../lib/reports';
-import { MAX_REPORT_DISTANCE_KM, distanceKm } from '../../lib/geo';
 import { trackEvent } from '../../firebase/analytics';
 
 type LatLng = { lat: number; lng: number };
@@ -21,7 +20,6 @@ interface ZonePopupProps {
   user: User | null;
   reports: Report[];
   userLocation: LatLng | null;
-  zoneCenter: LatLng | null;
   onClose: () => void;
 }
 
@@ -31,7 +29,6 @@ export function ZonePopup({
   user,
   reports,
   userLocation,
-  zoneCenter,
   onClose,
 }: ZonePopupProps) {
   const [submitting, setSubmitting] = useState<ReportType | null>(null);
@@ -43,40 +40,22 @@ export function ZonePopup({
 
   const stats = useMemo(() => sectorStats(reports, zone.id), [reports, zone.id]);
 
-  const distance = useMemo(() => {
-    if (!userLocation || !zoneCenter) return null;
-    return distanceKm(userLocation, zoneCenter);
-  }, [userLocation, zoneCenter]);
-
   const locationMissing = !userLocation;
-  const tooFar = distance !== null && distance > MAX_REPORT_DISTANCE_KM;
 
   const disabled = useMemo(
-    () => !user || submitting !== null || locationMissing || tooFar,
-    [user, submitting, locationMissing, tooFar],
+    () => !user || submitting !== null || locationMissing,
+    [user, submitting, locationMissing],
   );
 
   async function handleReport(type: ReportType) {
     if (!user) {
-      setMessage('Connexion anonyme en cours, veuillez reessayer.');
+      setMessage('الاتصال المجهول جاري، عاود جرّب.');
       setMessageKind('error');
       return;
     }
     if (locationMissing) {
-      setMessage('Activez \u00ab Ma position \u00bb pour signaler une zone pres de vous.');
+      setMessage('فعّل «موقعي» باش تبلّغ على منطقة قريبة منك.');
       setMessageKind('error');
-      return;
-    }
-    if (tooFar) {
-      setMessage(
-        `Cette zone est a ${Math.round(distance as number)} km de vous. Vous ne pouvez signaler que dans un rayon de ${MAX_REPORT_DISTANCE_KM} km.`,
-      );
-      setMessageKind('error');
-      trackEvent('report_out_of_range', {
-        delegation_id: zone.delegationId,
-        governorate: zone.governorate,
-        distance_km: Math.round(distance as number),
-      });
       return;
     }
     setSubmitting(type);
@@ -93,8 +72,8 @@ export function ZonePopup({
       });
       setMessage(
         type === 'restore'
-          ? 'Retour du courant signale. Merci !'
-          : 'Signalement envoye. Merci !',
+          ? 'تبليغ رجوع الضو تسجّل. يعيشك!'
+          : 'التبليغ تبعث. يعيشك!',
       );
       setMessageKind('success');
       trackEvent('report_submitted', {
@@ -106,7 +85,7 @@ export function ZonePopup({
     } catch (err) {
       if (err instanceof GlobalRateLimitError) {
         setMessage(
-          `Vous avez atteint la limite de ${err.limit} signalements. Reessayez dans ${formatRateLimitCountdown(err.retryAt)}.`,
+          `وصلت للحد الأقصى ${err.limit} تبليغات. عاود بعد ${formatRateLimitCountdown(err.retryAt)}.`,
         );
         trackEvent('report_rate_limited', {
           report_type: type,
@@ -116,7 +95,7 @@ export function ZonePopup({
         });
       } else if (err instanceof RateLimitError) {
         setMessage(
-          `Vous avez deja signale cette zone. Reessayez dans ${formatRateLimitCountdown(err.retryAt)}.`,
+          `راك بلّغت على المنطقة هذي قبل. عاود بعد ${formatRateLimitCountdown(err.retryAt)}.`,
         );
         trackEvent('report_rate_limited', {
           report_type: type,
@@ -125,7 +104,7 @@ export function ZonePopup({
           scope: 'zone',
         });
       } else {
-        setMessage((err as Error).message ?? 'Erreur lors de l\u2019envoi.');
+        setMessage((err as Error).message ?? 'خطأ وقت الإرسال.');
         trackEvent('report_failed', {
           report_type: type,
           delegation_id: zone.delegationId,
@@ -141,11 +120,7 @@ export function ZonePopup({
   const accent = colorFor(status);
 
   return (
-    <div
-      className="flex w-[min(84vw,340px)] flex-col text-sm"
-      role="dialog"
-      aria-label={`Signaler pour ${zone.name}`}
-    >
+    <div className="flex w-full flex-col text-sm" aria-label={`بلّغ على ${zone.name}`}>
       {/* Header */}
       <div className="mb-3">
         <h2 className="text-lg font-bold leading-tight text-white">{zone.name}</h2>
@@ -164,7 +139,7 @@ export function ZonePopup({
           {STATUS_LABELS[status]}
           {count > 0 && (
             <span className="text-[11px] font-medium opacity-80">
-              &middot; {count} actif{count > 1 ? 's' : ''}
+              &middot; {count} نشيط
             </span>
           )}
         </div>
@@ -176,12 +151,12 @@ export function ZonePopup({
           <div className="grid grid-cols-2 gap-2">
             <StatCard
               icon={<ChartIcon />}
-              label="Signalements (7 j)"
+              label="تبليغات (7 أيام)"
               value={String(stats.totalVotes)}
             />
             <StatCard
               icon={<UsersIcon />}
-              label="Contributeurs"
+              label="المساهمين"
               value={String(stats.uniqueUsers)}
             />
           </div>
@@ -189,40 +164,33 @@ export function ZonePopup({
             <TimeRow
               icon={<BoltIcon />}
               iconColor="#f87171"
-              label="Derniere coupure"
+              label="آخر قطوعة"
               value={formatRelativeTime(stats.lastOutageAt)}
             />
             <TimeRow
               icon={<CheckIcon />}
               iconColor="#34d399"
-              label="Retour du courant"
+              label="رجوع الضو"
               value={formatRelativeTime(stats.lastRestoreAt)}
             />
           </div>
         </div>
       ) : (
         <p className="mb-3 rounded-lg bg-slate-800/60 px-3 py-2.5 text-center text-xs text-slate-400">
-          Aucun signalement recense sur les 7 derniers jours.
+          ما فماش تبليغات في آخر 7 أيام.
         </p>
       )}
 
       {locationMissing && (
         <p className="mb-3 flex items-start gap-1.5 rounded-lg bg-amber-500/10 px-2.5 py-2 text-xs text-amber-300">
           <span aria-hidden>&#9888;</span>
-          Activez &laquo; Ma position &raquo; pour signaler une zone pres de vous.
-        </p>
-      )}
-      {!locationMissing && tooFar && (
-        <p className="mb-3 flex items-start gap-1.5 rounded-lg bg-amber-500/10 px-2.5 py-2 text-xs text-amber-300">
-          <span aria-hidden>&#9888;</span>
-          Zone a {Math.round(distance as number)} km de vous. Signalement limite a{' '}
-          {MAX_REPORT_DISTANCE_KM} km.
+          فعّل &laquo; موقعي &raquo; باش تبلّغ على منطقة قريبة منك.
         </p>
       )}
 
       {/* Actions */}
       <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-        Signaler
+        بلّغ
       </p>
       <div className="flex flex-col gap-2">
         <button
@@ -230,10 +198,10 @@ export function ZonePopup({
           className="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed"
           onClick={() => handleReport('blackout')}
           disabled={disabled}
-          aria-label={`Signaler pas d'electricite pour ${zone.name}`}
+          aria-label={`بلّغ اللي ما فماش ضو في ${zone.name}`}
         >
           <BoltIcon />
-          {submitting === 'blackout' ? 'Envoi...' : 'Pas d\u2019electricite'}
+          {submitting === 'blackout' ? 'جاري الإرسال...' : 'ما فماش ضو'}
         </button>
         <div className="grid grid-cols-2 gap-2">
           <button
@@ -241,27 +209,27 @@ export function ZonePopup({
             className="btn-secondary bg-amber-600 hover:bg-amber-700 active:bg-amber-800 disabled:opacity-60 disabled:cursor-not-allowed"
             onClick={() => handleReport('voltage')}
             disabled={disabled}
-            aria-label={`Signaler probleme de tension pour ${zone.name}`}
+            aria-label={`بلّغ على مشكل في الڤولطاج في ${zone.name}`}
           >
-            {submitting === 'voltage' ? 'Envoi...' : 'Tension'}
+            {submitting === 'voltage' ? 'جاري الإرسال...' : 'ڤولطاج'}
           </button>
           <button
             type="button"
             className="btn-secondary bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-60 disabled:cursor-not-allowed"
             onClick={() => handleReport('restore')}
             disabled={disabled}
-            aria-label={`Signaler le retour du courant pour ${zone.name}`}
+            aria-label={`بلّغ على رجوع الضو في ${zone.name}`}
           >
-            {submitting === 'restore' ? 'Envoi...' : 'Courant OK'}
+            {submitting === 'restore' ? 'جاري الإرسال...' : 'الضو رجع'}
           </button>
         </div>
         <button
           type="button"
           className="btn-ghost w-full !py-2 text-slate-400"
           onClick={onClose}
-          aria-label="Fermer"
+          aria-label="سكّر"
         >
-          Fermer
+          سكّر
         </button>
       </div>
 
@@ -325,6 +293,8 @@ function TimeRow({
 
 function colorFor(status: string): string {
   switch (status) {
+    case 'green':
+      return '#16a34a';
     case 'yellow':
       return '#f59e0b';
     case 'orange':

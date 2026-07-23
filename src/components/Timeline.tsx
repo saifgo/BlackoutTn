@@ -31,16 +31,16 @@ function formatStamp(ts: number, spanMs: number): string {
 
 function formatRelative(deltaMs: number): string {
   const mins = Math.round(deltaMs / 60_000);
-  if (mins <= 0) return "à l'instant";
-  if (mins < 60) return `il y a ${mins} min`;
+  if (mins <= 0) return 'توّا';
+  if (mins < 60) return `من ${mins} دقيقة`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) {
     const m = mins % 60;
-    return m === 0 ? `il y a ${hours} h` : `il y a ${hours} h ${String(m).padStart(2, '0')}`;
+    return m === 0 ? `من ${hours} ساعة` : `من ${hours} ساعة ${String(m).padStart(2, '0')}`;
   }
   const days = Math.floor(hours / 24);
   const h = hours % 24;
-  return h === 0 ? `il y a ${days} j` : `il y a ${days} j ${h} h`;
+  return h === 0 ? `من ${days} يوم` : `من ${days} يوم ${h} ساعة`;
 }
 
 export function Timeline({ reports, startTime, value, onChange }: TimelineProps) {
@@ -154,30 +154,29 @@ export function Timeline({ reports, startTime, value, onChange }: TimelineProps)
   }, [playing]);
 
   return (
-    <div className="card pointer-events-auto w-full max-w-2xl p-3">
+    <div dir="ltr" className="card pointer-events-auto w-full max-w-2xl p-3">
       <div className="mb-2 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={togglePlay}
             className="btn-secondary !min-h-[36px] !px-2.5 !py-1"
-            aria-label={playing ? 'Mettre en pause la lecture' : "Lire l'historique"}
+            aria-label={playing ? 'وقّف القراية' : 'اقرا التاريخ'}
           >
             {playing ? <PauseIcon /> : <PlayIcon />}
           </button>
           <div className="leading-tight">
             <p className="text-sm font-semibold text-white">
-              {isLive ? 'En direct' : formatStamp(clamped, windowMs)}
+              {isLive ? 'مباشر' : formatStamp(clamped, windowMs)}
             </p>
             <p className="text-[11px] text-slate-400">
-              {isLive ? 'État actuel' : formatRelative(max - clamped)}
+              {isLive ? 'الوضع الحالي' : formatRelative(max - clamped)}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-[11px] text-slate-400">
-            <span className="font-semibold text-slate-200">{activeCount}</span> signalement
-            {activeCount === 1 ? '' : 's'}
+            <span className="font-semibold text-slate-200">{activeCount}</span> تبليغ
           </span>
           {!isLive && (
             <button
@@ -188,7 +187,7 @@ export function Timeline({ reports, startTime, value, onChange }: TimelineProps)
               }}
               className="btn-ghost !min-h-[32px] !px-2 !py-1 text-xs font-semibold text-amber-400"
             >
-              En direct
+              مباشر
             </button>
           )}
         </div>
@@ -236,14 +235,14 @@ export function Timeline({ reports, startTime, value, onChange }: TimelineProps)
             stopPlaying();
             handleSlider(Number(e.target.value));
           }}
-          aria-label="Position dans l'historique des coupures"
-          aria-valuetext={isLive ? 'En direct' : formatStamp(clamped, windowMs)}
+          aria-label="الموضع في تاريخ القطوعات"
+          aria-valuetext={isLive ? 'مباشر' : formatStamp(clamped, windowMs)}
         />
       </div>
 
       <div className="mt-1 flex justify-between text-[11px] text-slate-500">
         <span>{formatStamp(min, windowMs)}</span>
-        <span>Maintenant</span>
+        <span>توّا</span>
       </div>
     </div>
   );

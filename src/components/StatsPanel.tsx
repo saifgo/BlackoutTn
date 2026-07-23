@@ -31,7 +31,7 @@ export function StatsPanel({ open, onClose, aggregates, zones, lastUpdate }: Sta
       if (agg.count <= 0) continue;
       totalReports += agg.count;
       affectedZones += 1;
-      const gov = govBySector.get(agg.zoneId) ?? 'Inconnu';
+      const gov = govBySector.get(agg.zoneId) ?? 'مش معروف';
       perGovernorate.set(gov, (perGovernorate.get(gov) ?? 0) + agg.count);
     }
     let topGov: { name: string; count: number } | null = null;
@@ -47,7 +47,7 @@ export function StatsPanel({ open, onClose, aggregates, zones, lastUpdate }: Sta
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Statistiques"
+      aria-label="إحصائيات"
       className="fixed inset-0 z-[1100] flex items-center justify-center p-3 sm:p-6"
     >
       <div
@@ -57,27 +57,27 @@ export function StatsPanel({ open, onClose, aggregates, zones, lastUpdate }: Sta
       />
       <div className="card relative z-10 w-full max-w-md p-4 sm:p-6">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h2 className="text-lg font-bold text-white">Statistiques en direct</h2>
+          <h2 className="text-lg font-bold text-white">إحصائيات مباشرة</h2>
           <button
             type="button"
             className="btn-ghost !min-h-[36px] !px-2 !py-1"
             onClick={onClose}
-            aria-label="Fermer les statistiques"
+            aria-label="سكّر الإحصائيات"
           >
             &#10005;
           </button>
         </div>
         <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Stat label="Signalements actifs" value={summary.totalReports.toLocaleString('fr-FR')} />
-          <Stat label="Zones affectees" value={summary.affectedZones.toLocaleString('fr-FR')} />
+          <Stat label="تبليغات نشيطة" value={summary.totalReports.toLocaleString('fr-FR')} />
+          <Stat label="مناطق متأثّرة" value={summary.affectedZones.toLocaleString('fr-FR')} />
           <Stat
-            label="Gouvernorat le plus touche"
+            label="الولاية الأكثر تأثّر"
             value={summary.topGov ? `${summary.topGov.name} (${summary.topGov.count})` : '\u2014'}
           />
-          <Stat label="Derniere mise a jour" value={formatTime(lastUpdate)} />
+          <Stat label="آخر تحديث" value={formatTime(lastUpdate)} />
         </dl>
         <p className="mt-4 text-xs text-slate-400">
-          Les signalements de plus de 6 heures sont automatiquement ignores.
+          التبليغات الأكثر من 6 سوايع يتجاهلوهم أوتوماتيكي.
         </p>
       </div>
     </div>

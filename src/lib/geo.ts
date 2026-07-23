@@ -94,9 +94,6 @@ export function findZoneIdAtPoint(
   return null;
 }
 
-/** Maximum distance (km) between a user and a sector to allow reporting. */
-export const MAX_REPORT_DISTANCE_KM = 50;
-
 /** Approximate center of a sector, derived from its bounding box. */
 export function featureCenter(
   feature: Feature<Polygon | MultiPolygon, ZoneProperties>,

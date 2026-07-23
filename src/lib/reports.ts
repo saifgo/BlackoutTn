@@ -77,25 +77,25 @@ export async function submitReport({
 export function formatRateLimitCountdown(retryAt: number, now: number = Date.now()): string {
   const remaining = Math.max(0, retryAt - now);
   const minutes = Math.ceil(remaining / 60_000);
-  if (minutes <= 1) return 'moins d\u2019une minute';
-  return `${minutes} minutes`;
+  if (minutes <= 1) return 'أقل من دقيقة';
+  return `${minutes} دقايق`;
 }
 
 /**
- * Formats a past timestamp as a short French "il y a ..." relative string
- * (e.g. "il y a 5 min", "il y a 2 h", "il y a 3 j"). Returns an em dash for
+ * Formats a past timestamp as a short Tunisian Derja "من ..." relative string
+ * (e.g. "من 5 دقيقة", "من 2 ساعة", "من 3 يوم"). Returns an em dash for
  * missing timestamps.
  */
 export function formatRelativeTime(ts: number | null, now: number = Date.now()): string {
   if (!ts) return '\u2014';
   const diff = Math.max(0, now - ts);
   const minutes = Math.floor(diff / 60_000);
-  if (minutes < 1) return "\u00e0 l\u2019instant";
-  if (minutes < 60) return `il y a ${minutes} min`;
+  if (minutes < 1) return 'توّا';
+  if (minutes < 60) return `من ${minutes} دقيقة`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `il y a ${hours} h`;
+  if (hours < 24) return `من ${hours} ساعة`;
   const days = Math.floor(hours / 24);
-  return `il y a ${days} j`;
+  return `من ${days} يوم`;
 }
 
 export const RATE_LIMIT_MINUTES = Math.round(RATE_LIMIT_MS / 60_000);

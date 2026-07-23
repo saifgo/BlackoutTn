@@ -44,8 +44,8 @@ export default function App() {
   }, []);
 
   const authError = useMemo(() => {
-    if (auth.error) return 'Authentification indisponible.';
-    if (reportsError) return 'Connexion aux donnees en direct interrompue.';
+    if (auth.error) return 'المصادقة مش متوفرة.';
+    if (reportsError) return 'الاتصال بالمعطيات المباشرة تقطع.';
     return null;
   }, [auth.error, reportsError]);
 
@@ -72,7 +72,7 @@ export default function App() {
     const zones = zonesQuery.data;
     if (!zones) return;
     if (!('geolocation' in navigator)) {
-      setLocateError('Geolocalisation non disponible sur cet appareil.');
+      setLocateError('تحديد الموقع مش متوفر على الجهاز هذا.');
       trackEvent('locate_unavailable');
       return;
     }
@@ -88,7 +88,7 @@ export default function App() {
           selectZone(zoneId, 'locate');
           trackEvent('locate_success', { in_coverage: true });
         } else {
-          setLocateError('Vous etes en dehors des zones couvertes.');
+          setLocateError('راك برّا من المناطق المغطّاة.');
           trackEvent('locate_success', { in_coverage: false });
         }
       },
@@ -96,8 +96,8 @@ export default function App() {
         setLocating(false);
         setLocateError(
           error.code === error.PERMISSION_DENIED
-            ? 'Acces a la position refuse. Autorisez la localisation.'
-            : 'Position introuvable, reessayez.',
+            ? 'الوصول للموقع مرفوض. اسمح بتحديد الموقع.'
+            : 'الموقع ماكش ملقي، عاود جرّب.',
         );
         trackEvent('locate_failed', {
           reason: error.code === error.PERMISSION_DENIED ? 'permission_denied' : 'unavailable',
@@ -128,13 +128,13 @@ export default function App() {
         }}
       />
 
-      <main className="absolute inset-0" aria-label="Carte des coupures d'electricite">
-        {zonesQuery.isLoading && <LoadingOverlay label="Chargement de la carte..." />}
+      <main className="absolute inset-0" aria-label="خريطة قطوعات الكهرباء">
+        {zonesQuery.isLoading && <LoadingOverlay label="جاري تحميل الخريطة..." />}
         {zonesQuery.error && (
-          <ErrorOverlay message="Impossible de charger les limites administratives. Verifiez votre connexion." />
+          <ErrorOverlay message="ما نجّمناش نحمّلو الحدود الإدارية. تثبّت من الاتصال متاعك." />
         )}
         {zonesQuery.data && (
-          <Suspense fallback={<LoadingOverlay label="Chargement de la carte..." />}>
+          <Suspense fallback={<LoadingOverlay label="جاري تحميل الخريطة..." />}>
             <MapView
               zones={zonesQuery.data}
               aggregates={aggregates}
@@ -215,7 +215,7 @@ function ErrorOverlay({ message }: { message: string }) {
       className="absolute inset-0 grid place-items-center bg-slate-950 p-6 text-center text-slate-200"
     >
       <div className="max-w-sm">
-        <h2 className="mb-2 text-lg font-bold">Erreur</h2>
+        <h2 className="mb-2 text-lg font-bold">خطأ</h2>
         <p className="text-sm text-slate-300">{message}</p>
       </div>
     </div>

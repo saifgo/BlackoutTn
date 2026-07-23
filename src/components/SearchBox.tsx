@@ -67,7 +67,7 @@ export function SearchBox({ zones, onSelect }: SearchBoxProps) {
   return (
     <div ref={containerRef} className="relative flex-1">
       <label htmlFor="zone-search" className="sr-only">
-        Rechercher un secteur, une delegation ou un gouvernorat
+        لوّج على قطاع، معتمدية ولا ولاية
       </label>
       <input
         id="zone-search"
@@ -79,7 +79,7 @@ export function SearchBox({ zones, onSelect }: SearchBoxProps) {
         aria-activedescendant={
           open && results.length > 0 ? `zone-search-option-${highlight}` : undefined
         }
-        placeholder="Rechercher un secteur (ex: Megrine, Sfax)..."
+        placeholder="لوّج على قطاع (مثال: المرناقية، صفاقس)..."
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);

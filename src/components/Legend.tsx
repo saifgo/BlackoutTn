@@ -1,15 +1,16 @@
 import { STATUS_COLORS } from '../lib/status';
 
 const ITEMS: Array<{ status: keyof typeof STATUS_COLORS; label: string; range: string }> = [
-  { status: 'gray', label: 'Normal', range: '0' },
-  { status: 'yellow', label: 'Isole', range: '1-4' },
-  { status: 'orange', label: 'Probable', range: '5-9' },
-  { status: 'red', label: 'Confirme', range: '10+' },
+  { status: 'gray', label: 'عادي', range: '0' },
+  { status: 'green', label: 'الضو رجع', range: '✓' },
+  { status: 'yellow', label: 'مبعثر', range: '1-4' },
+  { status: 'orange', label: 'محتمل', range: '5-9' },
+  { status: 'red', label: 'مؤكّد', range: '10+' },
 ];
 
 export function Legend() {
   return (
-    <div aria-label="Legende des couleurs" role="group" className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+    <div aria-label="دليل الألوان" role="group" className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
       {ITEMS.map((item) => (
         <div key={item.status} className="flex items-center gap-1.5">
           <span

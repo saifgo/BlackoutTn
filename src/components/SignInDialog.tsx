@@ -67,7 +67,7 @@ export function SignInDialog({ open, onClose }: SignInDialogProps) {
                 } catch (err) {
                   setError(
                     (err as Error).message ??
-                      'Impossible de se connecter avec ce compte Google.',
+                      'ما نجّمناش ندخلو بحساب ڤوڤل هذا.',
                   );
                 }
               }
@@ -75,7 +75,7 @@ export function SignInDialog({ open, onClose }: SignInDialogProps) {
           },
         });
       } catch (err) {
-        setError((err as Error).message ?? 'Chargement de la connexion impossible.');
+        setError((err as Error).message ?? 'ما نجّمناش نحمّلو صفحة الدخول.');
       }
     })();
 
@@ -104,7 +104,7 @@ export function SignInDialog({ open, onClose }: SignInDialogProps) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Se connecter"
+      aria-label="دخول"
       className="fixed inset-0 z-[1200] flex items-center justify-center p-3 sm:p-6"
     >
       <div
@@ -114,19 +114,19 @@ export function SignInDialog({ open, onClose }: SignInDialogProps) {
       />
       <div className="card relative z-10 w-full max-w-sm p-5 sm:p-6">
         <div className="mb-4 flex items-center justify-between gap-2">
-          <h2 className="text-lg font-bold text-white">Se connecter</h2>
+          <h2 className="text-lg font-bold text-white">دخول</h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Fermer"
+            aria-label="سكّر"
             className="btn-ghost !min-h-[36px] !px-2 !py-1"
           >
             &#10005;
           </button>
         </div>
         <p className="mb-4 text-xs text-slate-400">
-          Connectez-vous avec Google pour retrouver vos signalements. La
-          navigation anonyme reste disponible sans compte.
+          ادخل بڤوڤل باش تلقى التبليغات متاعك. تنجّم تستعمل الأبليكاسيون بلا
+          حساب زادة.
         </p>
         <div ref={containerRef} className="firebaseui-host" />
         {error && (

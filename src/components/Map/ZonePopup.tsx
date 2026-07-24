@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import type { User } from 'firebase/auth';
-import type { Report, ReportType, ZoneAggregate, ZoneProperties } from '../../types';
+import type { AppUser, Report, ReportType, ZoneAggregate, ZoneProperties } from '../../types';
 import { STATUS_LABELS, sectorStats } from '../../lib/status';
 import {
   GlobalRateLimitError,
@@ -15,7 +14,7 @@ import { trackEvent } from '../../firebase/analytics';
 interface ZonePopupProps {
   zone: ZoneProperties;
   aggregate?: ZoneAggregate;
-  user: User | null;
+  user: AppUser | null;
   reports: Report[];
   onClose: () => void;
 }
@@ -53,7 +52,7 @@ export function ZonePopup({
     try {
       await submitReport({
         zoneId: zone.id,
-        userId: user.uid,
+        userId: user.id,
         type,
         existingReports: reports,
         sectorId: zone.id,

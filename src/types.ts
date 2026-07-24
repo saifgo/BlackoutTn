@@ -40,3 +40,17 @@ export interface ZoneAggregate {
   lastReportAt: number | null;
   status: ZoneStatus;
 }
+
+/**
+ * Runtime user object exposed to the app. Backed by an Appwrite Account —
+ * anonymous sessions have an empty `email` and are flagged via `isAnonymous`.
+ * `photoURL` is only set when an OAuth provider (e.g. Google) is configured
+ * to sync a profile picture into `account.prefs`.
+ */
+export interface AppUser {
+  id: string;
+  isAnonymous: boolean;
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+}

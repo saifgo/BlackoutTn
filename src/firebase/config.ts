@@ -1,7 +1,9 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
-import { getAuth, type Auth } from 'firebase/auth';
-import { getFirestore, type Firestore } from 'firebase/firestore';
 
+/**
+ * Firebase is kept only for Analytics. Auth and database have been migrated
+ * to Appwrite (see `src/appwrite/config.ts`).
+ */
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -13,14 +15,13 @@ const firebaseConfig = {
 };
 
 function assertConfigured(cfg: typeof firebaseConfig): void {
-  const missing = (['apiKey', 'authDomain', 'projectId', 'appId'] as const).filter(
-    (key) => !cfg[key],
-  );
-  if (missing.length > 0) {
+  // Only measurementId is required for Analytics. The rest are still read so
+  // Firebase initializes cleanly; analytics silently no-ops if unsupported.
+  if (!cfg.apiKey || !cfg.appId) {
     // eslint-disable-next-line no-console
     console.warn(
-      `[BlackoutTN] Missing Firebase env vars: ${missing.join(', ')}. ` +
-        'Create a .env.local from .env.example. Anonymous auth and Firestore will fail until configured.',
+      '[BlackoutTN] Missing Firebase env vars for Analytics. ' +
+        'Create a .env.local from .env.example. Analytics will be disabled.',
     );
   }
 }
@@ -29,5 +30,3 @@ assertConfigured(firebaseConfig);
 
 export const firebaseConfigValues = firebaseConfig;
 export const firebaseApp: FirebaseApp = initializeApp(firebaseConfig);
-export const auth: Auth = getAuth(firebaseApp);
-export const db: Firestore = getFirestore(firebaseApp);

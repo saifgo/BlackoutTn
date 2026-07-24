@@ -1,5 +1,9 @@
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { ID } from 'appwrite';
+import {
+  APPWRITE_DATABASE_ID,
+  APPWRITE_REPORTS_COLLECTION_ID,
+  databases,
+} from '../appwrite/config';
 import type { Report, ReportType } from '../types';
 import {
   GLOBAL_VOTE_LIMIT,
@@ -66,12 +70,17 @@ export async function submitReport({
     zoneId,
     userId,
     type,
-    createdAt: serverTimestamp(),
+    createdAt: Date.now(),
   };
   if (sectorId) payload.sectorId = sectorId;
   if (sectorName) payload.sectorName = sectorName;
 
-  await addDoc(collection(db, 'reports'), payload);
+  await databases.createDocument(
+    APPWRITE_DATABASE_ID,
+    APPWRITE_REPORTS_COLLECTION_ID,
+    ID.unique(),
+    payload,
+  );
 }
 
 export function formatRateLimitCountdown(retryAt: number, now: number = Date.now()): string {

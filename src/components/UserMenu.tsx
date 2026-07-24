@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import type { User } from 'firebase/auth';
+import type { AppUser } from '../types';
 
 interface UserMenuProps {
-  user: User | null;
+  user: AppUser | null;
   actionPending: boolean;
   onOpenSignIn: () => void;
   onSignOut: () => void;

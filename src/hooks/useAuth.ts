@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { onAuthStateChanged, signInAnonymously, type User } from 'firebase/auth';
-import { auth } from '../firebase/config';
-import { signOut as fbSignOut } from '../firebase/googleAuth';
+import { account } from '../appwrite/config';
+import { ensureSession, mapAccount, signOut as awSignOut } from '../appwrite/auth';
+import type { AppUser } from '../types';
 import { setAnalyticsUser, setAnalyticsUserProperties, trackEvent } from '../firebase/analytics';
 
 export interface AuthState {
-  user: User | null;
+  user: AppUser | null;
   loading: boolean;
   error: Error | null;
   /** True while a sign-out is in flight. */
@@ -18,6 +18,15 @@ export interface AuthActions {
 
 export type UseAuthReturn = AuthState & AuthActions;
 
+async function currentOrAnonymous(): Promise<AppUser> {
+  try {
+    const user = await account.get();
+    return mapAccount(user);
+  } catch {
+    return ensureSession();
+  }
+}
+
 export function useAuth(): UseAuthReturn {
   const [state, setState] = useState<AuthState>({
     user: null,
@@ -28,53 +37,49 @@ export function useAuth(): UseAuthReturn {
 
   useEffect(() => {
     let cancelled = false;
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (user) => {
+
+    (async () => {
+      try {
+        const user = await currentOrAnonymous();
         if (cancelled) return;
-        if (user) {
-          setAnalyticsUser(user.uid);
-          setAnalyticsUserProperties({
-            auth_type: user.isAnonymous ? 'anonymous' : 'google',
-          });
-          trackEvent('login', { method: user.isAnonymous ? 'anonymous' : 'google' });
-          setState((prev) => ({ ...prev, user, loading: false, error: null }));
-        } else {
-          setAnalyticsUser(null);
-          // No user (fresh visit or after sign-out) -> sign in anonymously
-          // so the app stays instantly usable.
-          signInAnonymously(auth).catch((err) => {
-            if (cancelled) return;
-            setState((prev) => ({
-              ...prev,
-              user: null,
-              loading: false,
-              error: err as Error,
-            }));
-          });
-        }
-      },
-      (err) => {
+        setAnalyticsUser(user.id);
+        setAnalyticsUserProperties({
+          auth_type: user.isAnonymous ? 'anonymous' : 'google',
+        });
+        trackEvent('login', { method: user.isAnonymous ? 'anonymous' : 'google' });
+        setState((prev) => ({ ...prev, user, loading: false, error: null }));
+      } catch (err) {
         if (cancelled) return;
+        setAnalyticsUser(null);
         setState((prev) => ({
           ...prev,
           user: null,
           loading: false,
           error: err as Error,
         }));
-      },
-    );
+      }
+    })();
+
     return () => {
       cancelled = true;
-      unsubscribe();
     };
   }, []);
 
   const signOut = useCallback(async () => {
     setState((prev) => ({ ...prev, actionPending: true, error: null }));
     try {
-      await fbSignOut();
-      setState((prev) => ({ ...prev, actionPending: false }));
+      await awSignOut();
+      // Recreate an anonymous session so the app stays usable.
+      const user = await ensureSession();
+      setAnalyticsUser(user.id);
+      setAnalyticsUserProperties({ auth_type: 'anonymous' });
+      trackEvent('login', { method: 'anonymous' });
+      setState((prev) => ({
+        ...prev,
+        user,
+        actionPending: false,
+        error: null,
+      }));
     } catch (err) {
       setState((prev) => ({
         ...prev,

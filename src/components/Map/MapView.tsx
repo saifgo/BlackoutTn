@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet';
 import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import type { User } from 'firebase/auth';
 import type {
+  AppUser,
   Report,
   ZoneAggregate,
   ZoneFeatureCollection,
@@ -20,7 +20,7 @@ const TUNISIA_BOUNDS: LatLngBoundsExpression = [
 interface MapViewProps {
   zones: ZoneFeatureCollection;
   aggregates: Map<string, ZoneAggregate>;
-  user: User | null;
+  user: AppUser | null;
   reports: Report[];
   selectedZoneId: string | null;
   onSelectZone: (zoneId: string | null) => void;
@@ -38,7 +38,7 @@ function PopupBridge({
   zones: ZoneFeatureCollection;
   aggregates: Map<string, ZoneAggregate>;
   selectedZoneId: string | null;
-  user: User | null;
+  user: AppUser | null;
   reports: Report[];
   onClose: () => void;
 }) {

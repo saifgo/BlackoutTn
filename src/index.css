@@ -156,38 +156,3 @@
   border-bottom-color: #334155 !important;
 }
 
-/* FirebaseUI dark-theme tweaks (the widget is loaded on demand) */
-.firebaseui-host .firebaseui-container {
-  background: transparent;
-  color: #f1f5f9;
-  box-shadow: none;
-  max-width: 100%;
-}
-
-.firebaseui-host .firebaseui-card-header,
-.firebaseui-host .firebaseui-card-content,
-.firebaseui-host .firebaseui-card-actions {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.firebaseui-host .firebaseui-title,
-.firebaseui-host .firebaseui-subtitle,
-.firebaseui-host .firebaseui-text {
-  color: #e2e8f0;
-}
-
-.firebaseui-host .firebaseui-idp-button {
-  max-width: 100%;
-  min-height: 44px;
-  border-radius: 10px;
-}
-
-.firebaseui-host .firebaseui-tos {
-  color: #94a3b8;
-}
-
-.firebaseui-host .firebaseui-tos a {
-  color: #f59e0b;
-}
-

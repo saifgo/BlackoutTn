@@ -9,7 +9,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          firebase: ['firebase/app', 'firebase/analytics'],
+          appwrite: ['appwrite'],
           leaflet: ['leaflet', 'react-leaflet'],
           query: ['@tanstack/react-query'],
         },

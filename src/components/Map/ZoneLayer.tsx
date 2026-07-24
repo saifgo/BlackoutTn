@@ -3,8 +3,8 @@ import { GeoJSON, useMap } from 'react-leaflet';
 import type { Feature } from 'geojson';
 import type { Layer, PathOptions } from 'leaflet';
 import type { GeoJSON as LeafletGeoJSON } from 'leaflet';
-import type { User } from 'firebase/auth';
 import type {
+  AppUser,
   Report,
   ZoneAggregate,
   ZoneFeatureCollection,
@@ -15,7 +15,7 @@ import { STATUS_COLORS } from '../../lib/status';
 interface ZoneLayerProps {
   data: ZoneFeatureCollection;
   aggregates: Map<string, ZoneAggregate>;
-  user: User | null;
+  user: AppUser | null;
   reports: Report[];
   selectedZoneId: string | null;
   onSelectZone: (zoneId: string | null) => void;

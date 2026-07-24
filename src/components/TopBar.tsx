@@ -1,14 +1,13 @@
-import type { User } from 'firebase/auth';
 import { SearchBox } from './SearchBox';
 import { UserMenu } from './UserMenu';
 import { InstallButton } from './InstallButton';
-import type { ZoneFeatureCollection } from '../types';
+import type { AppUser, ZoneFeatureCollection } from '../types';
 
 interface TopBarProps {
   zones: ZoneFeatureCollection | null;
   onSelectZone: (zoneId: string) => void;
   onOpenStats: () => void;
-  user: User | null;
+  user: AppUser | null;
   authActionPending: boolean;
   onOpenSignIn: () => void;
   onSignOut: () => void;

@@ -182,6 +182,37 @@ node scripts/preprocess-geojson.mjs
 - Palette a fort contraste, focus visible.
 - Support `prefers-contrast: more`.
 
+## Impact observe : comprendre les coupures en Tunisie
+
+BlackoutTN est ne d'un constat simple : lors des grandes vagues de coupures d'electricite en Tunisie, les citoyens n'avaient aucun moyen rapide de savoir si leur secteur etait le seul touche ou si le probleme etait generalise. Ce projet a permis de visualiser et de mesurer cet impact a l'echelle nationale.
+
+### Ce que les donnees ont revele
+
+Grace aux signalements communautaires collectes en temps reel, l'application a mis en evidence plusieurs patterns jusqu'alors difficiles a quantifier :
+
+- **Propagation geographique** : les coupures ne sont pas isolees. La carte a revele des effets en cascade, ou des zones voisines reportent des pannes simultanees, suggerant des problemes au niveau des sous-stations regionales plutot que de simples defauts locaux.
+- **Heures de pointe** : les signalements se concentrent en fin d'apres-midi (17h–21h), confirmant la correlation avec les pics de consommation estivaux.
+- **Disparites regionales** : certains gouvernorats accumulent systematiquement plus de signalements confirmes, rendant visible une inegalite d'infrastructure que les donnees officielles ne detaillaient pas.
+- **Duree des pannes** : le systeme d'expiration a 6 heures permet d'estimer grossierement la duree des coupures par zone et d'identifier les secteurs chroniquement touches.
+
+### Captures d'ecran de l'application en action
+
+Vue mobile — signalements en cours sur le nord-est de la Tunisie :
+
+![Capture mobile BlackoutTN](public/Capture%20d'écran%202026-07-23%20135011.png)
+
+Vue desktop — apercu national avec le panneau de statistiques :
+
+![Capture desktop BlackoutTN](public/Capture%20d'écran%202026-07-23%20171239.png)
+
+### Demo video
+
+<video src="public/short_blackout.mp4" controls width="100%"></video>
+
+> La video ci-dessus montre le flux en temps reel : signalement d'une coupure, mise a jour instantanee de la couleur de la zone sur la carte, et evolution du compteur de signalements.
+
+---
+
 ## Extensions prevues
 
 Phase 2 : votes de confirmation, ETA de retablissement, integration STEG / Telegram / WhatsApp, Cloud Functions pour rate-limit serveur.
